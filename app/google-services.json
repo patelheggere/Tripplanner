@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1019931071209",
+    "firebase_url": "https://tripplanner-80c1a.firebaseio.com",
+    "project_id": "tripplanner-80c1a",
+    "storage_bucket": "tripplanner-80c1a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1019931071209:android:2a1974edf1402671",
+        "android_client_info": {
+          "package_name": "com.patelheggere.tripplanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1019931071209-c86ubgcufnkvmp1u4e68khebicbifhku.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOhgymTs-2unv5YYxTc3hFPR--n1kZsA8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

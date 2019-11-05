@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">P. Rajeev Event Planner</string>
+    <string name="event_name">ಕಾರ್ಯಕ್ರಮ:</string>
+    <string name="event_place">ಸ್ಥಳ:</string>
+    <string name="event_date">ದಿನಾ೦ಕ:</string>
+    <string name="title_location_permission">Location required</string>
+    <string name="text_location_permission">Required</string>
+    <string name="delete_msg">Are You sure want to delete?</string>
+    <string name="delete_confirm">Delete?</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_event">Add Programme/Event</string>
+    <string name="update_event">Update Event Details</string>
+    <string name="update">Update</string>
+    <string name="contact_name">Name:</string>
+    <string name="contact_number">Mobile:</string>
+    <string name="add_starting">Add Starting Point</string>
+
+</resources>
