@@ -7,17 +7,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -47,7 +47,6 @@ import com.patelheggere.tripplanner.model.DistanceModel;
 import com.patelheggere.tripplanner.model.EventDetailModel;
 import com.patelheggere.tripplanner.utils.DataParser;
 import com.patelheggere.tripplanner.utils.GPSTracker;
-import com.patelheggere.tripplanner.utils.Prims;
 import com.patelheggere.tripplanner.utils.TSPNearestNeighbour;
 import com.patelheggere.tripplanner.utils.UtilsClass;
 
@@ -66,8 +65,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-
-import static com.patelheggere.tripplanner.utils.Prims.INFINITE;
 
 public class MainActivity extends AppCompatActivity implements EventAdapter.SelectEditDelete {
     private static final String TAG = "MainActivity";
@@ -469,41 +466,40 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.Sele
         protected void onPostExecute(DistanceModel distance) {
             mProgressBar.setVisibility(View.GONE);
             NoOfCalls-=1;
+            Log.d(TAG, "onPostExecute: no of calls:"+NoOfCalls);
             DecimalFormat decimalFormat = new DecimalFormat("##.###");
-            for (int i = 1; i<=reOrderedList.size(); i++)
-            {
-                for (int j = 1; j<=reOrderedList.size(); j++)
-                {
-                    if(i!=j && mDistanceMatrix[i][j]==0)
-                    {
-                        mDistanceMatrix[i][j]=(int)distance.getDistance()/1000;
-                        if(NoOfCalls==0)
-                        {
-                            selectedStartPoint = -1;
-                            String data="";
-                            TSPNearestNeighbour tspNearestNeighbour = new TSPNearestNeighbour();
-                            int arr[] = tspNearestNeighbour.tsp(mDistanceMatrix, reOrderedList);
-                            for (int m=0; m<arr.length; m++)
+            if(reOrderedList!=null) {
+                for (int i = 1; i <= reOrderedList.size(); i++) {
+                    for (int j = 1; j <= reOrderedList.size(); j++) {
+                        if (i != j && mDistanceMatrix[i][j] == 0) {
+                            mDistanceMatrix[i][j] = (int) distance.getDistance() / 1000;
+                            if (NoOfCalls == 0)
                             {
-                                data+= (m+1)+"."+reOrderedList.get(arr[m]).getPlaceName()+"\n";
+                                selectedStartPoint = -1;
+                                String data = "";
+                                TSPNearestNeighbour tspNearestNeighbour = new TSPNearestNeighbour();
+                                int arr[] = tspNearestNeighbour.tsp(mDistanceMatrix, reOrderedList);
+                                for (int m = 0; m < arr.length; m++) {
+                                    data += (m + 1) + "." + reOrderedList.get(arr[m]).getPlaceName() + "\n";
+                                }
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                View popupView = inflater.inflate(R.layout.path_layout, null, false);
+                                LinearLayout linearLayout = popupView.findViewById(R.id.linearLayoutPath);
+                                TextView textView = popupView.findViewById(R.id.textViewDistance);
+                                textView.setText(data);
+                                builder.setView(popupView);
+                                AlertDialog alertDialog = builder.create();
+                                alertDialog.show();
+                                radioGroupPlaces = null;
+                                mProgressBar.setVisibility(View.GONE);
                             }
-                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                            View popupView = inflater.inflate(R.layout.path_layout, null, false);
-                            LinearLayout linearLayout = popupView.findViewById(R.id.linearLayoutPath);
-                            TextView textView = popupView.findViewById(R.id.textViewDistance);
-                            textView.setText(data);
-                            builder.setView(popupView);
-                            AlertDialog alertDialog =  builder.create();
-                            alertDialog.show();
-                            radioGroupPlaces = null;
-                            mProgressBar.setVisibility(View.GONE);
+                            databaseReferenceDistance = BaseApplication.getFireBaseRef();
+                            databaseReferenceDistance = databaseReferenceDistance.child("distanceMatrix").child(reOrderedList.get(i - 1).getPlaceName() + "_TO_" + reOrderedList.get(j - 1).getPlaceName());
+                            databaseReferenceDistance.setValue(mDistanceMatrix[i][j]);
+                            //Log.d(TAG, "onPostExecute: distance:"+filteredList.get(i).getPlaceName() +" to "+filteredList.get(j).getPlaceName()+" :" +mDistanceMatrix[i][j]);
+                            return;
                         }
-                        databaseReferenceDistance = BaseApplication.getFireBaseRef();
-                        databaseReferenceDistance = databaseReferenceDistance.child("distanceMatrix").child(reOrderedList.get(i-1).getPlaceName()+"_TO_"+reOrderedList.get(j-1).getPlaceName());
-                        databaseReferenceDistance.setValue(mDistanceMatrix[i][j]);
-                        //Log.d(TAG, "onPostExecute: distance:"+filteredList.get(i).getPlaceName() +" to "+filteredList.get(j).getPlaceName()+" :" +mDistanceMatrix[i][j]);
-                        return;
                     }
                 }
             }
