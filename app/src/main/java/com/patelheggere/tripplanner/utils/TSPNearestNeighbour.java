@@ -28,7 +28,7 @@ public class TSPNearestNeighbour
         int element, dst = 0, i;
         int min = Integer.MAX_VALUE;
         boolean minFlag = false;
-        Log.d(TAG, "tsp: "+filteredList.get(0).getPlaceName());
+        //Log.d(TAG, "tsp: "+filteredList.get(0).getPlaceName());
         System.out.print(1 + "\t");
         int k = 0;
         array[k] = 0;
@@ -57,7 +57,7 @@ public class TSPNearestNeighbour
                 stack.push(dst);
                 k++;
                 array[k]=dst-1;
-                Log.d(TAG, "tsp: "+filteredList.get(dst-1).getPlaceName());
+                //Log.d(TAG, "tsp: "+filteredList.get(dst-1).getPlaceName());
                 System.out.print(dst + "\t");
                 minFlag = false;
                 continue;

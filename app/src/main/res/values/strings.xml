@@ -15,5 +15,9 @@
     <string name="contact_name">Name:</string>
     <string name="contact_number">Mobile:</string>
     <string name="add_starting">Add Starting Point</string>
+    <string name="title_activity_second_main">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 
 </resources>
