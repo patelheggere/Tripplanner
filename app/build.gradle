@@ -38,5 +38,13 @@ dependencies {
     implementation "com.google.android.gms:play-services-maps:$rootProject.mapVersion"
     implementation "com.google.android.gms:play-services-places:$rootProject.playServiceVersion"
     implementation 'com.github.bumptech.glide:glide:4.9.0'
+    implementation("com.squareup.retrofit2:retrofit:${rootProject.ext.retrofitLibVersion}") {
+        // exclude Retrofit’s OkHttp dependency module and define your own module import
+        exclude module: 'okhttp'
+    }
+    implementation "com.google.code.gson:gson:${rootProject.ext.gsonLibVersion}"
+    implementation "com.squareup.retrofit2:converter-gson:${rootProject.ext.retrofitLibVersion}"
+    implementation "com.squareup.okhttp3:logging-interceptor:${rootProject.ext.okhttpLibVersion}"
+    implementation "com.squareup.okhttp3:okhttp:${rootProject.ext.okhttpLibVersion}"
 
 }

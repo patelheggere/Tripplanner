@@ -3,6 +3,7 @@ package com.patelheggere.tripplanner.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +14,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,14 +23,18 @@ import com.google.firebase.database.ValueEventListener;
 import com.patelheggere.tripplanner.BaseApplication;
 import com.patelheggere.tripplanner.R;
 import com.patelheggere.tripplanner.model.EventDetailModel;
+import com.patelheggere.tripplanner.model.TalukByAcModel;
+import com.patelheggere.tripplanner.utils.CoordinatesModel;
 import com.patelheggere.tripplanner.utils.TSPNearestNeighbour;
+import com.patelheggere.tripplanner.utils.Tools;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnPolygonClickListener {
     private static final String TAG = "MapActivity";
     private GoogleMap mMap;
     private static int[][] mDistanceMatrix = new int[4][4];
@@ -35,7 +42,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private DatabaseReference databaseReference, databaseReferenceDeleteEdit;
     private List<EventDetailModel> filteredList, reOrderedList;
 
-
+    private TalukByAcModel talukByAcModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,14 +56,84 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        LatLng TutorialsPoint = new LatLng(14.1655606, 76.6480134);
-         mMap.addMarker(new MarkerOptions().position(TutorialsPoint).title("patel"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(TutorialsPoint));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(TutorialsPoint, 15));
+
+        String polyMap = getIntent().getStringExtra("MAP");
+
+        polyMap = polyMap.replace("POLYGON ((","");
+        polyMap = polyMap.replace("))", "");
+        polyMap = polyMap.replace(")", "");
+        polyMap = polyMap.replace("(", "");
+
+        drawPolygon1(polyMap, "");
+
+        String pol = talukByAcModel.getPolyGon().replace("POLYGON ((","");
+        pol = pol.replace("))", "");
+        pol = pol.replace(")", "");
+        pol = pol.replace("(", "");
+
+
+
+        LatLng lt= drawPolygon(pol, talukByAcModel.getKGISTHobliName());
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(lt));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lt, 10));
+        mMap.setOnPolygonClickListener(this);
     }
 
+    private LatLng drawPolygon(String poly, String tag)
+    {
+        String points[] = poly.split(",");
+        String lats[] = new String[points.length];
+        String longs[] = new String[points.length];
+        for(int i=0;i<points.length; i++){
+            String pt = points[i].trim().replace(" ","-");
+            String coord[] = pt.split("-");
+            lats[i]=coord[1];
+            longs[i]=coord[0];
+        }
+        List<LatLng> latLngs = new ArrayList<>();
+        for(int i=0;i<points.length; i++){
+            CoordinatesModel coordinatesModel = Tools.UTM2Deg(lats[i], longs[i]);
+            LatLng latLng = new LatLng(coordinatesModel.getLat(), coordinatesModel.getLon());
+            latLngs.add(latLng);
+        }
+        Polygon polygon1 = mMap.addPolygon(new PolygonOptions()
+                .clickable(true)
+                .addAll(latLngs));
+        polygon1.setTag(tag);
+        polygon1.setStrokeColor(Color.RED);
+
+        return latLngs.get(latLngs.size()/2);
+
+    }
+
+    private void drawPolygon1(String poly, String tag)
+    {
+        String points[] = poly.split(",");
+        String lats[] = new String[points.length];
+        String longs[] = new String[points.length];
+        for(int i=0;i<points.length; i++){
+            String pt = points[i].trim().replace(" ","-");
+            String coord[] = pt.split("-");
+            lats[i]=coord[1];
+            longs[i]=coord[0];
+        }
+        List<LatLng> latLngs = new ArrayList<>();
+        for(int i=0;i<points.length; i++){
+            CoordinatesModel coordinatesModel = Tools.UTM2Deg(lats[i], longs[i]);
+            LatLng latLng = new LatLng(coordinatesModel.getLat(), coordinatesModel.getLon());
+            latLngs.add(latLng);
+        }
+        Polygon polygon1 = mMap.addPolygon(new PolygonOptions()
+                .clickable(true)
+                .addAll(latLngs));
+        polygon1.setTag(tag);
+        polygon1.setStrokeColor(Color.YELLOW);
+
+    }
     private void initData()
     {
+        talukByAcModel = getIntent().getParcelableExtra("DATA");
+
         databaseReference = BaseApplication.getFireBaseRef();
         //  databaseReferenceDistance = BaseApplication.getFireBaseRef().child("");
         databaseReference.child("eventDetails").addValueEventListener(new ValueEventListener() {
@@ -76,7 +153,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         return Long.valueOf(o1.getTimeStamp()).compareTo(o2.getTimeStamp());
                     }
                 });
-
+/*
                 filteredList = new ArrayList<>();
                 for(int i=0;i<5; i++) {
                     for (int j = 0; j < 5; j++) {
@@ -90,6 +167,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 {
                     Log.d(TAG, "onDataChange: Distance:"+arr[i]);
                 }
+
+ */
 
             }
 
@@ -120,5 +199,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 // Adding marker on the Google Map
         mMap.addMarker(markerOptions);
+    }
+
+    @Override
+    public void onPolygonClick(Polygon polygon) {
+        Log.d(TAG, "onPolygonClick: "+polygon.getTag().toString());
     }
 }

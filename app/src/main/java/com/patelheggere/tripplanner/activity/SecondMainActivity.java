@@ -1,9 +1,11 @@
 package com.patelheggere.tripplanner.activity;
 
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.patelheggere.tripplanner.R;
+import com.patelheggere.tripplanner.activity.ui.dashboard.DashboardFragment;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -11,7 +13,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-public class SecondMainActivity extends AppCompatActivity  {
+public class SecondMainActivity extends AppCompatActivity  implements DashboardFragment.OnFragmentInteractionListener {
 
 
     @Override
@@ -26,6 +28,9 @@ public class SecondMainActivity extends AppCompatActivity  {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
     }
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
+    }
 
 }
