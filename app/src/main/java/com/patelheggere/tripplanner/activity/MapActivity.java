@@ -23,6 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.patelheggere.tripplanner.BaseApplication;
 import com.patelheggere.tripplanner.R;
 import com.patelheggere.tripplanner.model.EventDetailModel;
+import com.patelheggere.tripplanner.model.PlaceDetails;
 import com.patelheggere.tripplanner.model.TalukByAcModel;
 import com.patelheggere.tripplanner.utils.CoordinatesModel;
 import com.patelheggere.tripplanner.utils.TSPNearestNeighbour;
@@ -41,8 +42,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private List<EventDetailModel> eventDetailList =new ArrayList<>();
     private DatabaseReference databaseReference, databaseReferenceDeleteEdit;
     private List<EventDetailModel> filteredList, reOrderedList;
+    private List<PlaceDetails> placeDetailsList;
 
     private TalukByAcModel talukByAcModel;
+    private boolean isEventMapper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,27 +60,40 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        if(!isEventMapper) {
+            String polyMap = getIntent().getStringExtra("MAP");
 
-        String polyMap = getIntent().getStringExtra("MAP");
+            polyMap = polyMap.replace("POLYGON ((", "");
+            polyMap = polyMap.replace("))", "");
+            polyMap = polyMap.replace(")", "");
+            polyMap = polyMap.replace("(", "");
 
-        polyMap = polyMap.replace("POLYGON ((","");
-        polyMap = polyMap.replace("))", "");
-        polyMap = polyMap.replace(")", "");
-        polyMap = polyMap.replace("(", "");
+            drawPolygon1(polyMap, "");
 
-        drawPolygon1(polyMap, "");
-
-        String pol = talukByAcModel.getPolyGon().replace("POLYGON ((","");
-        pol = pol.replace("))", "");
-        pol = pol.replace(")", "");
-        pol = pol.replace("(", "");
+            String pol = talukByAcModel.getPolyGon().replace("POLYGON ((", "");
+            pol = pol.replace("))", "");
+            pol = pol.replace(")", "");
+            pol = pol.replace("(", "");
 
 
+            LatLng lt = drawPolygon(pol, talukByAcModel.getKGISTHobliName());
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(lt));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lt, 10));
+            mMap.setOnPolygonClickListener(this);
+        }
+        else if(placeDetailsList!=null && placeDetailsList.size()>0)
+        {
+            for(int i=0;i<placeDetailsList.size(); i++)
+            {
+                drawMarker(new LatLng(placeDetailsList.get(i).getLat(), placeDetailsList.get(i).getLng()), placeDetailsList.get(i).getName());
+            }
 
-        LatLng lt= drawPolygon(pol, talukByAcModel.getKGISTHobliName());
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(lt));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lt, 10));
-        mMap.setOnPolygonClickListener(this);
+            double lt = placeDetailsList.get(placeDetailsList.size()/2).getLat();
+            double lng = placeDetailsList.get(placeDetailsList.size()/2).getLng();
+            LatLng ltln = new LatLng(lt, lng);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(ltln));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ltln, 10));
+        }
     }
 
     private LatLng drawPolygon(String poly, String tag)
@@ -133,50 +150,40 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void initData()
     {
         talukByAcModel = getIntent().getParcelableExtra("DATA");
-
-        databaseReference = BaseApplication.getFireBaseRef();
-        //  databaseReferenceDistance = BaseApplication.getFireBaseRef().child("");
-        databaseReference.child("eventDetails").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                eventDetailList.clear();
-                for (DataSnapshot dataSnapshot1: dataSnapshot.getChildren()){
-                    EventDetailModel eventDetailModel = new EventDetailModel();
-                    eventDetailModel = dataSnapshot1.getValue(EventDetailModel.class);
-                    eventDetailModel.setKey(dataSnapshot1.getKey());
-                    Log.d(TAG, "onDataChange: Key"+dataSnapshot1.getKey());
-                    eventDetailList.add(eventDetailModel);
-                }
-                Collections.sort(eventDetailList, new Comparator<EventDetailModel>() {
-                    @Override
-                    public int compare(EventDetailModel o1, EventDetailModel o2) {
-                        return Long.valueOf(o1.getTimeStamp()).compareTo(o2.getTimeStamp());
+        isEventMapper = getIntent().getBooleanExtra("IS_EVENT", false);
+        placeDetailsList = getIntent().getParcelableArrayListExtra("PLACE_DATA");
+        if(!isEventMapper) {
+            databaseReference = BaseApplication.getFireBaseRef();
+            //  databaseReferenceDistance = BaseApplication.getFireBaseRef().child("");
+            databaseReference.child("eventDetails").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    eventDetailList.clear();
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                        EventDetailModel eventDetailModel = new EventDetailModel();
+                        eventDetailModel = dataSnapshot1.getValue(EventDetailModel.class);
+                        eventDetailModel.setKey(dataSnapshot1.getKey());
+                        Log.d(TAG, "onDataChange: Key" + dataSnapshot1.getKey());
+                        eventDetailList.add(eventDetailModel);
                     }
-                });
-/*
-                filteredList = new ArrayList<>();
-                for(int i=0;i<5; i++) {
-                    for (int j = 0; j < 5; j++) {
-                        if (i != j && mDistanceMatrix[i][j] == 0) {
-                            mDistanceMatrix[i][j] = (i+j)+10;
+                    Collections.sort(eventDetailList, new Comparator<EventDetailModel>() {
+                        @Override
+                        public int compare(EventDetailModel o1, EventDetailModel o2) {
+                            return Long.valueOf(o1.getTimeStamp()).compareTo(o2.getTimeStamp());
                         }
-                    }
-                }
-                int arr[] = new TSPNearestNeighbour().tsp(mDistanceMatrix, eventDetailList);
-                for (int i=0;i<arr.length; i++)
-                {
-                    Log.d(TAG, "onDataChange: Distance:"+arr[i]);
+                    });
                 }
 
- */
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // mProgressBar.setVisibility(View.GONE);
+                }
+            });
+        }
+        else if(placeDetailsList!=null && placeDetailsList.size()>0)
+        {
 
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-               // mProgressBar.setVisibility(View.GONE);
-            }
-        });
+        }
 
     }
 
