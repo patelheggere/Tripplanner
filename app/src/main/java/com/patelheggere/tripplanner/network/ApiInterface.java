@@ -4,6 +4,7 @@ package com.patelheggere.tripplanner.network;
 
 import com.patelheggere.tripplanner.model.APIResponseModel;
 import com.patelheggere.tripplanner.model.BeneficiaryModel;
+import com.patelheggere.tripplanner.model.PlaceDetails;
 
 import java.util.List;
 
@@ -62,10 +63,22 @@ public interface ApiInterface {
     @GET("GetACPolygon")
     Call<APIResponseModel> GetACPolygon();
 
+    @GET("UpdateCompletion")
+    Call<APIResponseModel> UpdateCompletion(@Query("ID") String id);
+
+    @GET("Login")
+    Call<APIResponseModel> Login(@Query("uname") String uname, @Query("pwd") String pwd);
+
+
+    @GET("GetTandaByTeamID")
+    Call<List<PlaceDetails>> GetTandaByTeamID(@Query("ID") String id, @Query("date") String date);
+
     @GET("GetBoothByAC")
     Call<APIResponseModel> GetBoothByAC(@Query("AC_Code") String ac, @Query("Booth") String status);
 
     @GET("beneficiary/GetBoothLeaders.php")
     Call<List<BeneficiaryModel>> getboothLeaders(@Query("booth_no") int id);
+
+
 
 }

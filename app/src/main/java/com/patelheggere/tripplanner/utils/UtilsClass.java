@@ -37,6 +37,16 @@ public class UtilsClass {
         }
     }
 
+    public static String getDateDDMMYYY3(long timeStamp) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
+            Date netDate = (new Date(timeStamp));
+            return sdf.format(netDate);
+        } catch (Exception ex) {
+            return "xx";
+        }
+    }
+
     public static String getDateDDMMYYY(long timeStamp) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
@@ -46,8 +56,7 @@ public class UtilsClass {
             return "xx";
         }
     }
-
-    public static String getDateDDMMYYY2(long timeStamp) {
+    static String getDateDDMMYYY2(long timeStamp) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Date netDate = (new Date(timeStamp));
@@ -169,5 +178,6 @@ public class UtilsClass {
             return true;
         }
     }
+
 
 }

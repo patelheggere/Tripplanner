@@ -18,23 +18,24 @@
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MatantaraActivity">
+        <activity android:name=".activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.MatantaraActivity">
+
+        </activity>
         <activity android:name=".activity.MapActivity" />
-        <activity android:name=".activity.SecondMainActivity"></activity>
+        <activity android:name=".activity.SecondMainActivity" />
         <activity
             android:name=".activity.AddEventActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.MainActivity"
-            android:screenOrientation="portrait">
-
-        </activity>
+            android:screenOrientation="portrait"></activity>
 
         <meta-data
             android:name="com.google.android.gms.version"

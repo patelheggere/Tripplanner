@@ -20,7 +20,6 @@ public class RetrofitInstance {
    // private static final String BASE_URL = "http://kusavinibalaga.org/hamsa/endpoints/";
     private static final String BASE_URL = "http://117.254.85.204:8086/socialwelfarenew/webresources/myresource/";
 
-
     private static Retrofit retrofit = null;
 
     public  void setClient(){

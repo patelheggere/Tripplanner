@@ -1,6 +1,7 @@
 package com.patelheggere.tripplanner.activity;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -36,8 +37,11 @@ import com.patelheggere.tripplanner.BaseApplication;
 import com.patelheggere.tripplanner.R;
 import com.patelheggere.tripplanner.adapter.EventAdapter;
 import com.patelheggere.tripplanner.adapter.MatantaraEventAdapter;
+import com.patelheggere.tripplanner.model.APIResponseModel;
 import com.patelheggere.tripplanner.model.EventDetailModel;
 import com.patelheggere.tripplanner.model.PlaceDetails;
+import com.patelheggere.tripplanner.network.ApiInterface;
+import com.patelheggere.tripplanner.network.RetrofitInstance;
 import com.patelheggere.tripplanner.utils.GPSTracker;
 import com.patelheggere.tripplanner.utils.UtilsClass;
 
@@ -47,6 +51,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MatantaraActivity extends AppCompatActivity implements MatantaraEventAdapter.SelectEditDelete{
     private static final String TAG = "MatantaraActivity";
@@ -61,12 +69,17 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
     private int year, month, day, mHour, mMinute;;
     private Calendar calendar;
     private String ddmmyyyy;
-
+    private ActionBar mActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_matantara);
+        mActionBar = getSupportActionBar();
+        if(mActionBar!=null)
+        {
+            mActionBar.setTitle("Trip Planner");
+        }
         mRecyclerViewEvents = findViewById(R.id.recyclerView);
         mButtonDate = findViewById(R.id.buttonDate);
         mButtonSeePath = findViewById(R.id.buttonPreview);
@@ -80,14 +93,16 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
             latitude = gps.getLatitude();
             longitude = gps.getLongitude();
             Log.d(TAG, "onCreate: "+latitude+" long:"+longitude);
-            getPlaces();
+            //getPlaces();
             } else {
             gps.showSettingsAlert();
         }
+        setUpNetwork();
     }
     private void initListener()
     {
         ddmmyyyy = UtilsClass.getDateDDMMYYY(System.currentTimeMillis());
+        getPlaceByTeam();
         mButtonDate.setText(ddmmyyyy);
         mButtonDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,6 +130,8 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
                         String date = dd+"/"+mm+"/"+i;
 
                         mButtonDate.setText(UtilsClass.convertToTimestamp(date));
+                        ddmmyyyy = mButtonDate.getText().toString();
+                        getPlaceByTeam();
                     }
                 }, year, month, day);
                 // datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
@@ -129,6 +146,40 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
                intent.putParcelableArrayListExtra("PLACE_DATA", (ArrayList<? extends Parcelable>) placeDetailsList);
                 intent.putExtra("IS_EVENT", true);
                 startActivity(intent);
+            }
+        });
+    }
+
+    private void getPlaceByTeam(){
+        mProgressBar.setVisibility(View.VISIBLE);
+        Call<List<PlaceDetails>> call = apiInterface.GetTandaByTeamID("id", ddmmyyyy);
+        call.enqueue(new Callback<List<PlaceDetails>>() {
+            @Override
+            public void onResponse(Call<List<PlaceDetails>> call, Response<List<PlaceDetails>> response) {
+                mProgressBar.setVisibility(View.GONE);
+                if(response.body()!=null && response.body().size()>0)
+                {
+                    placeDetailsList = new ArrayList<>();
+                    for(int i=0; i<response.body().size(); i++){
+                        PlaceDetails eventDetailModel = response.body().get(i);
+                        placeDetailsList.add(eventDetailModel);
+                        eventDetailModel.setDistance(distance(latitude, longitude, eventDetailModel.getLat(), eventDetailModel.getLng()));
+                    }
+                Collections.sort(placeDetailsList, PlaceDetails.distanceComparator);
+                mAdapter = new MatantaraEventAdapter(MatantaraActivity.this, placeDetailsList);
+                setEvenData();
+                if(placeDetailsList.size()>0)
+                {
+                    mButtonDate.setEnabled(true);
+                    mButtonSeePath.setEnabled(true);
+                }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<PlaceDetails>> call, Throwable t) {
+                mProgressBar.setVisibility(View.GONE);
+                Toast.makeText(MatantaraActivity.this, "some thing wrong", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -169,6 +220,13 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
         mRecyclerViewEvents.setLayoutManager(linearLayoutManager);
         mRecyclerViewEvents.setAdapter(mAdapter);
         mRecyclerViewEvents.setVisibility(View.VISIBLE);
+    }
+    private ApiInterface apiInterface;
+
+    private void setUpNetwork() {
+        RetrofitInstance retrofitInstance = new RetrofitInstance();
+        retrofitInstance.setClient();
+        apiInterface = retrofitInstance.getClient().create(ApiInterface.class);
     }
     private double distance(double lat1, double lon1, double lat2, double lon2) {
         if ((lat1 == lat2) && (lon1 == lon2)) {
@@ -260,7 +318,21 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
 
     @Override
     public void selectedEditPosition(PlaceDetails position) {
+        Call<APIResponseModel> call = apiInterface.UpdateCompletion("ID");
+        call.enqueue(new Callback<APIResponseModel>() {
+            @Override
+            public void onResponse(Call<APIResponseModel> call, Response<APIResponseModel> response) {
+                if(response.body().isStatus())
+                {
 
+                }
+            }
+
+            @Override
+            public void onFailure(Call<APIResponseModel> call, Throwable t) {
+                Toast.makeText(MatantaraActivity.this, "some thing wrong", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override

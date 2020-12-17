@@ -162,10 +162,6 @@ public class MainActivity extends AppCompatActivity implements EventAdapter.Sele
                 filteredList = new ArrayList<>();
                 updateList();
                 mProgressBar.setVisibility(View.GONE);
-
-                //DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(MainActivity.this, linearLayoutManager.getOrientation());
-                //mRecyclerViewEvents.addItemDecoration(dividerItemDecoration);
-
             }
 
             @Override
