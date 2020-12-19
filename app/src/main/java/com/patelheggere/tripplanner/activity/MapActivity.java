@@ -92,7 +92,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             double lng = placeDetailsList.get(placeDetailsList.size()/2).getLng();
             LatLng ltln = new LatLng(lt, lng);
             mMap.moveCamera(CameraUpdateFactory.newLatLng(ltln));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ltln, 10));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ltln, 15));
         }
     }
 

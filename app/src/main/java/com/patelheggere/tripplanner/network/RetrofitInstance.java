@@ -16,9 +16,9 @@ public class RetrofitInstance {
    // private static final String BASE_URL = "https://maps.googleapis.com/maps/";
 
     //private static final String BASE_URL = "http://patelheggere.epizy.com/KuduchiAPI/";
-    //private static final String BASE_URL = "http://www.prajeev.net/API/";
+    private static final String BASE_URL = "http://prajeev.net/ktdcl/endpoints/";
    // private static final String BASE_URL = "http://kusavinibalaga.org/hamsa/endpoints/";
-    private static final String BASE_URL = "http://117.254.85.204:8086/socialwelfarenew/webresources/myresource/";
+   // private static final String BASE_URL = "http://117.254.85.204:8086/socialwelfarenew/webresources/myresource/";
 
     private static Retrofit retrofit = null;
 

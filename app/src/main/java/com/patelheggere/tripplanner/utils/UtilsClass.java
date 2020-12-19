@@ -56,7 +56,7 @@ public class UtilsClass {
             return "xx";
         }
     }
-    static String getDateDDMMYYY2(long timeStamp) {
+    public static String getDateDDMMYYY2(long timeStamp) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Date netDate = (new Date(timeStamp));
@@ -102,6 +102,35 @@ public class UtilsClass {
         long totaltime = ts.getTime()+fromMidNight;
         */
         return getDateDDMMYYY(ts.getTime());
+    }
+
+    public static long convertToTimestamp2(String date) {
+
+        Date initDate = null;
+        try {
+            initDate = new SimpleDateFormat("dd/mm/yyyy").parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        SimpleDateFormat formatter = new SimpleDateFormat("mm/dd/yyyy");
+        String parsedDate = formatter.format(initDate);
+
+        Timestamp ts = null;  //declare timestamp
+        Date d = null; // Intialize date with the string date
+        d = new Date(parsedDate);
+        if (d != null) {  // simple null check
+            ts = new java.sql.Timestamp(d.getTime()); // convert gettime from date and assign it to your timestamp.
+        }
+        /*
+        Calendar calendar1 = new GregorianCalendar();
+        calendar1.set(Calendar.HOUR_OF_DAY, 0);
+        calendar1.set(Calendar.MINUTE, 0);
+        calendar1.set(Calendar.SECOND, 0);
+        calendar1.set(Calendar.MILLISECOND, 0);
+        long fromMidNight = System.currentTimeMillis() - calendar1.getTimeInMillis();
+        long totaltime = ts.getTime()+fromMidNight;
+        */
+        return ts.getTime();
     }
 
     public static boolean hasPermissions(Context context, String... permissions) {

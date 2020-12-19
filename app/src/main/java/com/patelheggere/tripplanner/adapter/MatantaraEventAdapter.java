@@ -41,7 +41,7 @@ public class MatantaraEventAdapter extends RecyclerView.Adapter<MatantaraEventAd
     @NonNull
     @Override
     public EventHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.event_item, viewGroup, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.event_item2, viewGroup, false);
         return new EventHolder(view);
     }
 
@@ -57,6 +57,8 @@ public class MatantaraEventAdapter extends RecyclerView.Adapter<MatantaraEventAd
                 currentaffairsViewHolder.place.setText(PlaceDetails.getName());
             }
 
+            currentaffairsViewHolder.phoneLabel.setVisibility(View.GONE);
+            currentaffairsViewHolder.nameLabel.setVisibility(View.GONE);
          //   currentaffairsViewHolder.imageViewEdit.setVisibility(View.GONE);
             currentaffairsViewHolder.imageViewEdit.setImageResource(R.drawable.ic_check);
             currentaffairsViewHolder.imageViewEdit.setOnClickListener(new View.OnClickListener() {
@@ -127,7 +129,7 @@ public class MatantaraEventAdapter extends RecyclerView.Adapter<MatantaraEventAd
     }
 
     public class EventHolder extends RecyclerView.ViewHolder {
-        TextView title, date, place, name, phone;
+        TextView title, date, place, name, phone, nameLabel, phoneLabel;
         ImageView imageViewEdit, imageViewDelete, imageViewAttachment;
         public EventHolder(@NonNull View itemView) {
             super(itemView);
@@ -139,6 +141,8 @@ public class MatantaraEventAdapter extends RecyclerView.Adapter<MatantaraEventAd
             imageViewAttachment = itemView.findViewById(R.id.imageViewAttachment);
             name = itemView.findViewById(R.id.textViewContactNameValue);
             phone = itemView.findViewById(R.id.textViewContactPhoneValue);
+            nameLabel = itemView.findViewById(R.id.textViewContactName);
+            phoneLabel = itemView.findViewById(R.id.textViewContactPhone);
         }
     }
 

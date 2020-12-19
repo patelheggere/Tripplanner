@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -20,6 +21,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.patelheggere.tripplanner.utils.Constants.FIRST_TIME;
+import static com.patelheggere.tripplanner.utils.Constants.ID;
+import static com.patelheggere.tripplanner.utils.Constants.NAME;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
@@ -36,9 +39,10 @@ public class LoginActivity extends AppCompatActivity {
         {
             mActionBar.setTitle("Login");
         }
-        if(SharedPrefsHelper.getInstance().get(FIRST_TIME))
+        if(SharedPrefsHelper.getInstance().get(FIRST_TIME)!=null)
         {
             startActivity(new Intent(LoginActivity.this, MatantaraActivity.class));
+            finish();
         }
         else {
             setContentView(R.layout.activity_login);
@@ -55,13 +59,16 @@ public class LoginActivity extends AppCompatActivity {
                         public void onResponse(Call<APIResponseModel> call, Response<APIResponseModel> response) {
                             if (response.body().isStatus()) {
                                 SharedPrefsHelper.getInstance().save(FIRST_TIME, true);
+                                SharedPrefsHelper.getInstance().save(ID, response.body().getId());
+                                SharedPrefsHelper.getInstance().save(NAME, response.body().getName());
                                 startActivity(new Intent(LoginActivity.this, MatantaraActivity.class));
+                                finish();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<APIResponseModel> call, Throwable t) {
-
+                            Log.d(TAG, "onFailure: "+t.getLocalizedMessage());
                         }
                     });
                 }
