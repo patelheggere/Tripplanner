@@ -63,15 +63,15 @@ public interface ApiInterface {
     @GET("GetACPolygon")
     Call<APIResponseModel> GetACPolygon();
 
-    @GET("UpdateCompletion")
-    Call<APIResponseModel> UpdateCompletion(@Query("ID") String id);
+    @GET("MarkCompleted.php")
+    Call<APIResponseModel> UpdateCompletion(@Query("id") String id);
 
-    @GET("Login")
-    Call<APIResponseModel> Login(@Query("uname") String uname, @Query("pwd") String pwd);
+    @GET("VerifyUserTripPlannerUsers.php")
+    Call<APIResponseModel> Login(@Query("phone") String uname, @Query("pwd") String pwd);
 
 
-    @GET("GetTandaByTeamID")
-    Call<List<PlaceDetails>> GetTandaByTeamID(@Query("ID") String id, @Query("date") String date);
+    @GET("GetPlaceDataByTeam.php")
+    Call<List<PlaceDetails>> GetTandaByTeamID(@Query("id") String id, @Query("date") String date);
 
     @GET("GetBoothByAC")
     Call<APIResponseModel> GetBoothByAC(@Query("AC_Code") String ac, @Query("Booth") String status);

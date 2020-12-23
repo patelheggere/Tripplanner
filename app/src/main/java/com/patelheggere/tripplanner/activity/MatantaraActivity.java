@@ -43,6 +43,7 @@ import com.patelheggere.tripplanner.model.PlaceDetails;
 import com.patelheggere.tripplanner.network.ApiInterface;
 import com.patelheggere.tripplanner.network.RetrofitInstance;
 import com.patelheggere.tripplanner.utils.GPSTracker;
+import com.patelheggere.tripplanner.utils.SharedPrefsHelper;
 import com.patelheggere.tripplanner.utils.UtilsClass;
 
 import java.text.SimpleDateFormat;
@@ -56,6 +57,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.patelheggere.tripplanner.utils.Constants.ID;
+
 public class MatantaraActivity extends AppCompatActivity implements MatantaraEventAdapter.SelectEditDelete{
     private static final String TAG = "MatantaraActivity";
     private DatabaseReference databaseReference;
@@ -68,7 +71,7 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
     private ProgressBar mProgressBar;
     private int year, month, day, mHour, mMinute;;
     private Calendar calendar;
-    private String ddmmyyyy;
+    private String ddmmyyyy, ddmmyyyy2;
     private ActionBar mActionBar;
 
     @Override
@@ -80,11 +83,12 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
         {
             mActionBar.setTitle("Trip Planner");
         }
+        setUpNetwork();
         mRecyclerViewEvents = findViewById(R.id.recyclerView);
         mButtonDate = findViewById(R.id.buttonDate);
         mButtonSeePath = findViewById(R.id.buttonPreview);
         mProgressBar = findViewById(R.id.progresBar);
-        mButtonDate.setEnabled(false);
+        //mButtonDate.setEnabled(false);
         mButtonSeePath.setEnabled(false);
         initListener();
         gps = new GPSTracker(this);
@@ -97,11 +101,12 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
             } else {
             gps.showSettingsAlert();
         }
-        setUpNetwork();
     }
     private void initListener()
     {
         ddmmyyyy = UtilsClass.getDateDDMMYYY(System.currentTimeMillis());
+        ddmmyyyy2 = UtilsClass.getDateDDMMYYY2(System.currentTimeMillis());
+
         getPlaceByTeam();
         mButtonDate.setText(ddmmyyyy);
         mButtonDate.setOnClickListener(new View.OnClickListener() {
@@ -130,7 +135,7 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
                         String date = dd+"/"+mm+"/"+i;
 
                         mButtonDate.setText(UtilsClass.convertToTimestamp(date));
-                        ddmmyyyy = mButtonDate.getText().toString();
+                        ddmmyyyy2 = UtilsClass.getDateDDMMYYY2(UtilsClass.convertToTimestamp2(date));
                         getPlaceByTeam();
                     }
                 }, year, month, day);
@@ -152,12 +157,13 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
 
     private void getPlaceByTeam(){
         mProgressBar.setVisibility(View.VISIBLE);
-        Call<List<PlaceDetails>> call = apiInterface.GetTandaByTeamID("id", ddmmyyyy);
+        Call<List<PlaceDetails>> call = apiInterface.GetTandaByTeamID(SharedPrefsHelper.getInstance().get(ID).toString(), ddmmyyyy2);
         call.enqueue(new Callback<List<PlaceDetails>>() {
             @Override
             public void onResponse(Call<List<PlaceDetails>> call, Response<List<PlaceDetails>> response) {
                 mProgressBar.setVisibility(View.GONE);
-                if(response.body()!=null && response.body().size()>0)
+
+                if(response.body()!=null && response.body().size()>=0)
                 {
                     placeDetailsList = new ArrayList<>();
                     for(int i=0; i<response.body().size(); i++){
@@ -318,18 +324,21 @@ public class MatantaraActivity extends AppCompatActivity implements MatantaraEve
 
     @Override
     public void selectedEditPosition(PlaceDetails position) {
-        Call<APIResponseModel> call = apiInterface.UpdateCompletion("ID");
+        mProgressBar.setVisibility(View.VISIBLE);
+        Call<APIResponseModel> call = apiInterface.UpdateCompletion(position.getId()+"");
         call.enqueue(new Callback<APIResponseModel>() {
             @Override
             public void onResponse(Call<APIResponseModel> call, Response<APIResponseModel> response) {
+                mProgressBar.setVisibility(View.GONE);
                 if(response.body().isStatus())
                 {
-
+                    getPlaceByTeam();
                 }
             }
 
             @Override
             public void onFailure(Call<APIResponseModel> call, Throwable t) {
+                mProgressBar.setVisibility(View.GONE);
                 Toast.makeText(MatantaraActivity.this, "some thing wrong", Toast.LENGTH_LONG).show();
             }
         });
