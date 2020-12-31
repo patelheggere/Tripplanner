@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.patelheggere.tripplanner.R;
+import com.patelheggere.tripplanner.activity.UploadVideoImageActivity;
 import com.patelheggere.tripplanner.model.PlaceDetails;
 import com.patelheggere.tripplanner.utils.UtilsClass;
 
@@ -79,6 +80,18 @@ public class MatantaraEventAdapter extends RecyclerView.Adapter<MatantaraEventAd
                        mListener.selectedDeletePosition(PlaceDetails);
 
                     }
+                }
+            });
+
+            currentaffairsViewHolder.imageViewAttachment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(mContext, UploadVideoImageActivity.class);
+                    intent.putExtra("ID", PlaceDetails.getId());
+                  //  intent.putExtra("DIST_ID", PlaceDetails.getD());
+                   // intent.putExtra("TALUK_ID", PlaceDetails.get());
+
+                    mContext.startActivity(intent);
                 }
             });
 
@@ -149,5 +162,6 @@ public class MatantaraEventAdapter extends RecyclerView.Adapter<MatantaraEventAd
     public interface SelectEditDelete {
         void selectedEditPosition(PlaceDetails position);
         void selectedDeletePosition(PlaceDetails position);
+
     }
 }
