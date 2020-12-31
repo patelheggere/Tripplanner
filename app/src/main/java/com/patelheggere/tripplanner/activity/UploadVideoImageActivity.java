@@ -81,7 +81,7 @@ public class UploadVideoImageActivity extends AppCompatActivity {
         mActionBar = getSupportActionBar();
         if(mActionBar!=null)
         {
-            mActionBar.setTitle("Capture Photo and Videp");
+            mActionBar.setTitle("Capture Photo and Video");
         }
         mImageButton = findViewById(R.id.imageupload);
         mVideoButton = findViewById(R.id.videoupload);
